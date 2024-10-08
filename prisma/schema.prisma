@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  role      UserRole @default(USER)
+  isApproved Boolean @default(false)
+  balance      Float         @default(0)
+  activities   Activity[]
+  transactions Transaction[]
+  withdrawals  Withdrawal[]
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now())
+  description String
+  type        String
+  amount      Float
+  balance     Float
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now())
+  type        String
+  amount      Float
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+// Supprimez ou commentez le modèle Utilisateur si vous ne l'utilisez pas
+// model Utilisateur {
+//   id    Int     @id @default(autoincrement())
+//   email String  @unique
+//   nom   String?
+// }
+
+model Withdrawal {
+  id          String   @id @default(cuid())
+  amount      Float
+  status      String
+  date        DateTime @default(now())
+  bankAccount String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
