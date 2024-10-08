@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
 
-interface Withdrawal {
+interface WithdrawalRequest {
   id: string;
   amount: number;
-  status: 'pending' | 'completed' | 'failed';
-  date: string;
+  status: string;
+  requestDate: string;
   bankAccount: string;
 }
 
 const WithdrawalHistory: React.FC = () => {
-  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchWithdrawals();
+    fetchWithdrawalRequests();
   }, []);
 
-  const fetchWithdrawals = async () => {
+  const fetchWithdrawalRequests = async () => {
     try {
       setIsLoading(true);
       const response = await fetch('/api/get-withdrawals');
       const data = await response.json();
-      setWithdrawals(data.withdrawals);
+      setWithdrawalRequests(data.withdrawals);
     } catch (error) {
-      console.error("Erreur lors de la récupération de l'historique des retraits:", error);
+      console.error("Erreur lors de la récupération de l'historique des demandes de retrait:", error);
     } finally {
       setIsLoading(false);
     }
@@ -31,10 +31,10 @@ const WithdrawalHistory: React.FC = () => {
 
   return (
     <div className="bg-white rounded shadow p-6">
-      <h3 className="text-xl font-semibold mb-4">Historique des retraits</h3>
+      <h3 className="text-xl font-semibold mb-4">Historique des demandes de retrait</h3>
       {isLoading ? (
         <p>Chargement de l'historique...</p>
-      ) : withdrawals.length > 0 ? (
+      ) : withdrawalRequests.length > 0 ? (
         <table className="w-full">
           <thead>
             <tr>
@@ -45,18 +45,18 @@ const WithdrawalHistory: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {withdrawals.map((withdrawal) => (
-              <tr key={withdrawal.id}>
-                <td>{new Date(withdrawal.date).toLocaleDateString()}</td>
-                <td>{withdrawal.amount.toLocaleString()} FCFA</td>
-                <td>{withdrawal.bankAccount}</td>
-                <td>{withdrawal.status}</td>
+            {withdrawalRequests.map((request) => (
+              <tr key={request.id}>
+                <td>{new Date(request.requestDate).toLocaleDateString()}</td>
+                <td>{request.amount.toLocaleString()} FCFA</td>
+                <td>{request.bankAccount}</td>
+                <td>{request.status}</td>
               </tr>
             ))}
           </tbody>
         </table>
       ) : (
-        <p>Aucun retrait effectué pour le moment.</p>
+        <p>Aucune demande de retrait effectuée pour le moment.</p>
       )}
     </div>
   );
